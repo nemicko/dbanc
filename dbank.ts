@@ -13,6 +13,7 @@ const accounts = {
     'a': 200000
 };
 
+
 // How much balance on :account ?
 app.get('/balance/:account', (req, res) => {
     res.send("Balance: " + accounts[req.params.account] || 0);
@@ -36,5 +37,11 @@ app.get('/balances', (req, res) => {
     return res.send(accounts);
 })
 
+
+// Get Version
+app.get('/version', (req, res) => {
+    const package = require("./package.json");
+    return res.send("Version: " + package.version);
+});
 
 

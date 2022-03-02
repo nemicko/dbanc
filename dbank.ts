@@ -20,10 +20,15 @@ app.get('/balance/:account', async (req, res) => {
 app.post('/transfer/:from/:to/:amount', async (req, res) => {
     const amount = parseInt(req.params.amount);
     const accounts = await getCurrentBalances(bankId);
-    if (accounts[req.params.from] < amount)
+
+    if (!accounts[req.params.from] && accounts[req.params.from] < amount)
         return res.status(400).send("Insufficent funds");
 
-    await fetch("http://192/balances/" + req.params.from + "/" + req.params.from + "/" + req.params.amount);
+    const t = await fetch("http://65.21.147.130:5000/transfer/" + req.params.from + "/" + req.params.to + "/" + req.params.amount,{
+        method: "post",
+        body: JSON.stringify({}),
+        headers: {'Content-Type': 'application/json'}
+    });
 
     return res.send(true);
 });
@@ -31,7 +36,7 @@ app.post('/transfer/:from/:to/:amount', async (req, res) => {
 // Get database
 app.get('/balances', async (req, res) => {
     const accounts = await getCurrentBalances(bankId);
-    return res.send(accounts);
+    return res.json(accounts);
 })
 
 // Get Version
@@ -41,5 +46,6 @@ app.get('/version', (req, res) => {
 });
 
 const getCurrentBalances = async(bank_id) => {
-    return await (await fetch("http://192/balances/a")).json();
+    const paylod = await fetch("http://65.21.147.130:5000/balances");
+    return await paylod.json();
 }

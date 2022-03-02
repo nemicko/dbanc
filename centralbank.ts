@@ -1,38 +1,47 @@
+import * as fs from "fs";
 const express = require('express');
 const app = express();
 const port = 3000;
-const fetch = require("node-fetch");
 
 app.listen(port, function() {
     console.log(`Example app listening on port ${port}!`)
 });
 
 // -- Webserver started
-const bankId = "a";
+let accounts = null;
+if (fs.existsSync("./dbase.json")){
+    // @ts-ignore
+    accounts = JSON.parse(fs.readFileSync("./dbase.json"));
+} else {
+    accounts = { 'central': 20000 };
+}
 
 // How much balance on :account ?
-app.get('/balance/:account', async (req, res) => {
-    const accounts = await getCurrentBalances(bankId);
+app.get('/balance/:account', (req, res) => {
     res.send("Balance: " + accounts[req.params.account] || 0);
 });
 
 // Transfer from :from to :to with amount :amount
-app.post('/transfer/:from/:to/:amount', async (req, res) => {
+app.post('/transfer/:from/:to/:amount', (req, res) => {
     const amount = parseInt(req.params.amount);
-    const accounts = await getCurrentBalances(bankId);
+
     if (accounts[req.params.from] < amount)
         return res.status(400).send("Insufficent funds");
 
-    await fetch("http://192/balances/" + req.params.from + "/" + req.params.from + "/" + req.params.amount);
+    accounts[req.params.from] -= amount;
+    accounts[req.params.to] = (accounts[req.params.to] || 0) + amount;
+
+    // store in database
+    fs.writeFileSync("./dbase.json", JSON.stringify(accounts));
 
     return res.send(true);
 });
 
 // Get database
-app.get('/balances', async (req, res) => {
-    const accounts = await getCurrentBalances(bankId);
+app.get('/balances', (req, res) => {
     return res.send(accounts);
 })
+
 
 // Get Version
 app.get('/version', (req, res) => {
@@ -40,6 +49,4 @@ app.get('/version', (req, res) => {
     return res.send("Version: " + pck.version);
 });
 
-const getCurrentBalances = async(bank_id) => {
-    return await (await fetch("http://192/balances/a")).json();
-}
+

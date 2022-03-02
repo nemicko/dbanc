@@ -17,6 +17,12 @@
   },
   "homepage": "https://github.com/nemicko/dbanc#readme",
   "dependencies": {
+    "@types/node": "^17.0.21",
     "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.1",
+    "@typescript-eslint/parser": "^5.12.1",
+    "eslint": "^8.10.0"
   }
 }
